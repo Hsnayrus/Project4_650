@@ -88,7 +88,7 @@ void parsePlayerFile(pqxx::connection * connectionToDatabase) {
   while (std::getline(playerFile, line)) {
     std::stringstream newStream(line);
     newStream >> playerID >> teamID >> uniformNum >> firstName >> lastName >> mpg >>
-        ppg >> rpg >> apg >> spg >> bpg;
+        ppg >> rpg >> apg >> std::fixed >> std::setprecision(1) >> spg >> bpg;
     add_player(connectionToDatabase,
                teamID,
                uniformNum,
@@ -131,8 +131,8 @@ void add_player(pqxx::connection * C,
   std::stringstream newStream;
   std::stringstream anotherStream;
   newStream << team_id << "," << jersey_num << ",";
-  anotherStream << "," << mpg << "," << ppg << "," << rpg << "," << apg << "," << spg
-                << "," << bpg;
+  anotherStream << "," << mpg << "," << ppg << "," << rpg << "," << apg << ","
+                << std::fixed << std::setprecision(1) << spg << "," << bpg;
   std::string insertString = std::string("INSERT INTO ") + PlayerTable +
                              std::string(" VALUES(") + newStream.str() +
                              C->quote(first_name) + "," + C->quote(last_name) +
@@ -296,13 +296,14 @@ void query1(pqxx::connection * C,
   attributes.push_back("APG");
   attributes.push_back("SPG");
   attributes.push_back("BPG");
-
   for (size_t i = 0; i < parametersAndFlags.size(); i++) {
     if (parametersAndFlags[i].first == 1) {
       std::stringstream minStream;
       std::stringstream maxStream;
-      minStream << parametersAndFlags[i].second.first;
-      maxStream << parametersAndFlags[i].second.second;
+      minStream << std::fixed << std::setprecision(1)
+                << parametersAndFlags[i].second.first;
+      maxStream << std::fixed << std::setprecision(1)
+                << parametersAndFlags[i].second.second;
       query = query + (flag ? std::string(" AND ") : std::string("WHERE ")) +
               attributes[i] + std::string(">=") + minStream.str() + std::string(" AND ") +
               attributes[i] + std::string("<=") + maxStream.str();
@@ -310,7 +311,7 @@ void query1(pqxx::connection * C,
     }
   }
   query = query + std::string(";");
-  pqxx::result newResult = basicExecuteQuery(C, query, true);
+  pqxx::result newResult = basicExecuteQuery(C, query, false);
   std::cout
       << "PLAYER_ID TEAM_ID UNIFORM_NUM FIRST_NAME LAST_NAME MPG PPG RPG APG SPG BPG\n";
   for (auto r : newResult) {
