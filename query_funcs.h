@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <pqxx/pqxx>
 #include <string>
@@ -35,6 +37,10 @@ void add_player(pqxx::connection * C,
                 double spg,
                 double bpg);
 void setPlayerTableFields(std::vector<std::string> & playerAttributes);
+void parsePlayerFile(pqxx::connection * connectionToDatabase);
+void testPlayerQuery(pqxx::connection * connectionToDatabase,
+                     std::string query,
+                     std::ostream & outputStream);
 
 //Team Table functions
 void add_team(pqxx::connection * C,
