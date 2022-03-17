@@ -46,12 +46,16 @@ void add_team(pqxx::connection * C,
 
 //State Table functions
 void add_state(pqxx::connection * C, std::string name);
+void parseStateFile(pqxx::connection * connectionToDataBase);
+void setStateTableAttributes(std::vector<std::string> & teamAttributes);
+void testStateQuery(pqxx::connection * connectionToDatabase,
+                    std::string query,
+                    std::ostream & outputStream);
 
 //Color functions
 void add_color(pqxx::connection * C, std::string name);
 void parseColorFile(pqxx::connection * connectionToDatabase);
 void setColorTableAttributes(std::vector<std::string> & colorAttributes);
-
 void testColorQuery(pqxx::connection * connectionToDatabase,
                     std::string query,
                     std::ostream & outputStream);

@@ -1,26 +1,28 @@
 #include "query_funcs.h"
 
+#include <fstream>
+
 #define PlayerTable \
   "PLAYER(PLAYER_ID,TEAM_ID,UNIFORM_NUM,FIRST_NAME,LAST_NAME,MPG,PPG,RPG,APG,SPG,BPG)"
 
 #define TeamTable "TEAM(TEAM_ID,NAME,STATE_ID,COLOR_ID,WINS,LOSSES)"
 
-#define StateTable "STATE(STATE_ID,NAME)"
+#define StateTable "STATE(NAME)"
 
 #define ColorTable "COLOR(NAME)"
 
 void displayInterval() {
   std::cout << "^*^*^*^*^*^*^*^*^*^*^*^*\n";
 }
+
 pqxx::result basicExecuteQuery(pqxx::connection * connectionToDatabase,
-#include <fstream>
                                std::string queryToExec,
                                bool displayMessage) {
   pqxx::work newWork(*connectionToDatabase);
   pqxx::result newResult = newWork.exec(queryToExec);
   newWork.commit();
-  displayInterval();
   if (displayMessage) {
+    displayInterval();
     std::cout << newResult.query() << " was executed successfully\n";
   }
   return newResult;
@@ -80,7 +82,37 @@ void add_team(pqxx::connection * C,
               int losses) {
 }
 
+void setStateTableAttributes(std::vector<std::string> & stateAttributes) {
+  stateAttributes.push_back("STATE_ID SERIAL PRIMARY KEY");
+  stateAttributes.push_back("NAME VARCHAR(5) NOT NULL");
+}
+
+void parseStateFile(pqxx::connection * connectionToDatabase) {
+  std::ifstream stateFile("state.txt");
+  std::string line;
+  int stateID;
+  std::string name;
+  while (std::getline(stateFile, line)) {
+    std::stringstream newStream(line);
+    newStream >> stateID >> name;
+    add_state(connectionToDatabase, name);
+  }
+}
+
+void testStateQuery(pqxx::connection * connectionToDatabase,
+                    std::string query,
+                    std::ostream & outputStream) {
+  pqxx::result newResult = basicExecuteQuery(connectionToDatabase, query, false);
+  displayInterval();
+  for (auto r : newResult) {
+    outputStream << r["STATE_ID"].as<int>() << " " << r["NAME"].c_str() << std::endl;
+  }
+}
+
 void add_state(pqxx::connection * C, std::string name) {
+  std::string insertString = std::string("INSERT INTO ") + StateTable +
+                             std::string(" VALUES(") + C->quote(name) + ");";
+  basicExecuteQuery(C, insertString, false);
 }
 
 void setColorTableAttributes(std::vector<std::string> & colorAttributes) {
@@ -92,7 +124,7 @@ void add_color(pqxx::connection * C, std::string name) {
   std::string insertString = std::string("INSERT INTO ") + ColorTable +
                              std::string(" VALUES(") + C->quote(name) + ");";
   //True for testing purposes
-  basicExecuteQuery(C, insertString, true);
+  basicExecuteQuery(C, insertString, false);
 }
 
 void parseColorFile(pqxx::connection * connectionToDatabase) {

@@ -39,10 +39,19 @@ int main(int argc, char * argv[]) {
   createTable(actualConnection, "color", colorAttributes);
   parseColorFile(actualConnection);
   std::string testAllEntriesColor = "SELECT * FROM COLOR;";
-  // std::ofstream outputStream("colorTableAfterParsing.txt");
-  testColorQuery(actualConnection, testAllEntriesColor, std::cout);
+  std::ofstream outputStream("colorTableAfterParsing.txt");
+  testColorQuery(actualConnection, testAllEntriesColor, outputStream);
+  outputStream.close();
 
-  // dropTable(actualConnection, "color", true);
+  std::vector<std::string> stateAttributes;
+  setStateTableAttributes(stateAttributes);
+  dropTable(actualConnection, "state", true);
+  createTable(actualConnection, "state", stateAttributes);
+  outputStream = std::ofstream("stateTableAfterParsing.txt");
+  parseStateFile(actualConnection);
+  std::string testAllEntriesState = "SELECT * FROM STATE;";
+  testStateQuery(actualConnection, testAllEntriesState, outputStream);
+  outputStream.close();
 
   //Close database connection
   actualConnection->disconnect();
