@@ -311,14 +311,16 @@ void query1(pqxx::connection * C,
     }
   }
   query = query + std::string(";");
-  pqxx::result newResult = basicExecuteQuery(C, query, false);
+  pqxx::result newResult = basicExecuteQuery(C, query, true);
   std::cout
       << "PLAYER_ID TEAM_ID UNIFORM_NUM FIRST_NAME LAST_NAME MPG PPG RPG APG SPG BPG\n";
   for (auto r : newResult) {
-    std::cout << r["PLAYER_ID"] << " " << r["TEAM_ID"] << " " << r["UNIFORM_NUM"] << " "
-              << r["FIRST_NAME"] << " " << r["LAST_NAME"] << " " << r["MPG"] << " "
-              << r["PPG"] << " " << r["RPG"] << " " << r["APG"] << " " << std::fixed
-              << std::setprecision(1) << r["SPG"] << " " << r["BPG"] << " " << std::endl;
+    std::cout << r["PLAYER_ID"].as<int>() << " " << r["TEAM_ID"].as<int>() << " "
+              << r["UNIFORM_NUM"].as<int>() << " " << r["FIRST_NAME"] << " "
+              << r["LAST_NAME"] << " " << r["MPG"].as<int>() << " " << r["PPG"].as<int>()
+              << " " << r["RPG"].as<int>() << " " << r["APG"].as<int>() << " "
+              << std::fixed << std::setprecision(1) << r["SPG"].as<double>() << " "
+              << r["BPG"].as<double>() << " " << std::endl;
   }
 }
 
