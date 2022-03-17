@@ -302,7 +302,7 @@ void query1(pqxx::connection * C,
       std::stringstream maxStream;
       minStream << parametersAndFlags[i].second.first;
       maxStream << parametersAndFlags[i].second.second;
-      query = query + std::string("WHERE ") + attributes[i] + std::string(">") +
+      query = query + std::string("WHERE ") + attributes[i] + std::string(">=") +
               minStream.str() + std::string(" AND ") + attributes[i] + std::string("<=") +
               maxStream.str();
     }
@@ -310,7 +310,7 @@ void query1(pqxx::connection * C,
   query = query + std::string(";");
   pqxx::result newResult = basicExecuteQuery(C, query, false);
   std::cout
-      << "PLAYER_ID,TEAM_ID,UNIFORM_NUM,FIRST_NAME,LAST_NAME,MPG,PPG,RPG,APG,SPG,BPG\n";
+      << "PLAYER_ID TEAM_ID UNIFORM_NUM FIRST_NAME LAST_NAME MPG PPG RPG APG SPG BPG\n";
   for (auto r : newResult) {
     std::cout << r["PLAYER_ID"] << " " << r["TEAM_ID"] << " " << r["UNIFORM_NUM"] << " "
               << r["FIRST_NAME"] << " " << r["LAST_NAME"] << " " << r["MPG"] << " "
