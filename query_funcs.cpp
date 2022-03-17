@@ -89,7 +89,6 @@ void parsePlayerFile(pqxx::connection * connectionToDatabase) {
     std::stringstream newStream(line);
     newStream >> playerID >> teamID >> uniformNum >> firstName >> lastName >> mpg >>
         ppg >> rpg >> apg >> spg >> bpg;
-    std::cout << "SPG: " << spg << ", BPG: " << bpg << std::endl;
     add_player(connectionToDatabase,
                teamID,
                uniformNum,
@@ -114,8 +113,8 @@ void testPlayerQuery(pqxx::connection * connectionToDatabase,
                  << r["UNIFORM_NUM"].as<int>() << " " << r["FIRST_NAME"] << " "
                  << r["LAST_NAME"] << " " << r["MPG"].as<int>() << " "
                  << r["PPG"].as<int>() << " " << r["RPG"].as<int>() << " "
-                 << r["APG"].as<int>() << " " << r["SPG"].as<double>() << " "
-                 << r["BPG"].as<double>() << std::endl;
+                 << r["APG"].as<int>() << " " << std::fixed << std::setprecision(1)
+                 << r["SPG"].as<double>() << " " << r["BPG"].as<double>() << std::endl;
   }
 }
 void add_player(pqxx::connection * C,
@@ -138,7 +137,7 @@ void add_player(pqxx::connection * C,
                              std::string(" VALUES(") + newStream.str() +
                              C->quote(first_name) + "," + C->quote(last_name) +
                              anotherStream.str() + ");";
-  basicExecuteQuery(C, insertString, true);
+  basicExecuteQuery(C, insertString, false);
 }
 
 void parseTeamFile(pqxx::connection * connectionToDatabase) {
