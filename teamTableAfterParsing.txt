@@ -1,0 +1,15 @@
+1 BostonCollege 10 7 216
+2 Clemson 6 2 612
+3 Duke 1 5 117
+4 FloridaState 3 7 126
+5 GeorgiaTech 9 6 810
+6 Louisville 4 4 126
+7 Miami 3 3 108
+8 NCSU 1 4 414
+9 NotreDame 5 6 126
+10 Pittsburgh 7 8 414
+11 Syracuse 8 2 108
+12 UNC 1 1 144
+13 Virginia 2 2 117
+14 VirginiaTech 2 7 108
+15 WakeForest 1 6 99

@@ -5,7 +5,7 @@
 #define PlayerTable \
   "PLAYER(PLAYER_ID,TEAM_ID,UNIFORM_NUM,FIRST_NAME,LAST_NAME,MPG,PPG,RPG,APG,SPG,BPG)"
 
-#define TeamTable "TEAM(TEAM_ID,NAME,STATE_ID,COLOR_ID,WINS,LOSSES)"
+#define TeamTable "TEAM(NAME,STATE_ID,COLOR_ID,WINS,LOSSES)"
 
 #define StateTable "STATE(NAME)"
 
@@ -74,12 +74,54 @@ void add_player(pqxx::connection * C,
                 double bpg) {
 }
 
+void parseTeamFile(pqxx::connection * connectionToDatabase) {
+  std::ifstream teamFile("team.txt");
+  std::string line;
+  int teamID;
+  int stateID;
+  int colorID;
+  int wins;
+  int losses;
+  std::string name;
+  while (std::getline(teamFile, line)) {
+    std::stringstream newStream(line);
+    newStream >> teamID >> name >> stateID >> colorID >> wins >> losses;
+    add_team(connectionToDatabase, name, stateID, colorID, wins, losses);
+  }
+}
+
+void setTeamTableAttributes(std::vector<std::string> & teamAttributes) {
+  teamAttributes.push_back("TEAM_ID SERIAL PRIMARY KEY");
+  teamAttributes.push_back("NAME VARCHAR(50) NOT NULL");
+  teamAttributes.push_back("STATE_ID INT NOT NULL");
+  teamAttributes.push_back("COLOR_ID INT NOT NULL");
+  teamAttributes.push_back("WINS INT NOT NULL");
+  teamAttributes.push_back("LOSSES INT NOT NULL");
+}
+
+void testTeamQuery(pqxx::connection * connectionToDatabase,
+                   std::string query,
+                   std::ostream & outputStream) {
+  pqxx::result newResult = basicExecuteQuery(connectionToDatabase, query, false);
+  displayInterval();
+  for (auto r : newResult) {
+    outputStream << r["TEAM_ID"].as<int>() << " " << r["NAME"] << " "
+                 << r["STATE_ID"].as<int>() << " " << r["COLOR_ID"].as<int>() << " "
+                 << r["WINS"].as<int>() << r["LOSSES"].as<int>() << std::endl;
+  }
+}
 void add_team(pqxx::connection * C,
               std::string name,
               int state_id,
               int color_id,
               int wins,
               int losses) {
+  std::stringstream newStream;
+  newStream << "," << state_id << "," << color_id << "," << wins << "," << losses;
+  std::string insertString = std::string("INSERT INTO ") + TeamTable +
+                             std::string(" VALUES(") + C->quote(name) + newStream.str() +
+                             ");";
+  basicExecuteQuery(C, insertString, false);
 }
 
 void setStateTableAttributes(std::vector<std::string> & stateAttributes) {

@@ -43,6 +43,11 @@ void add_team(pqxx::connection * C,
               int color_id,
               int wins,
               int losses);
+void parseTeamFile(pqxx::connection * connectionToDatabase);
+void setTeamTableAttributes(std::vector<std::string> & teamAttributes);
+void testTeamQuery(pqxx::connection * connectionToDatabase,
+                   std::string query,
+                   std::ostream & outputStream);
 
 //State Table functions
 void add_state(pqxx::connection * C, std::string name);

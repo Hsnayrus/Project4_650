@@ -53,6 +53,15 @@ int main(int argc, char * argv[]) {
   testStateQuery(actualConnection, testAllEntriesState, outputStream);
   outputStream.close();
 
+  std::vector<std::string> teamAttributes;
+  setTeamTableAttributes(teamAttributes);
+  dropTable(actualConnection, "team", true);
+  createTable(actualConnection, "team", teamAttributes);
+  parseTeamFile(actualConnection);
+  outputStream = std::ofstream("teamTableAfterParsing.txt");
+  std::string testAllEntriesTest = "SELECT * FROM TEAM;";
+  testTeamQuery(actualConnection, testAllEntriesTest, outputStream);
+  outputStream.close();
   //Close database connection
   actualConnection->disconnect();
 
