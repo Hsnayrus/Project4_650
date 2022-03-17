@@ -281,6 +281,7 @@ void query1(pqxx::connection * C,
             double min_bpg,
             double max_bpg) {
   std::string query = "SELECT * FROM PLAYER ";
+  bool flag = false;
   std::vector<std::pair<int, std::pair<int, int> > > parametersAndFlags;
   parametersAndFlags.push_back(std::make_pair(use_mpg, std::make_pair(min_mpg, max_mpg)));
   parametersAndFlags.push_back(std::make_pair(use_ppg, std::make_pair(min_ppg, max_ppg)));
@@ -302,13 +303,14 @@ void query1(pqxx::connection * C,
       std::stringstream maxStream;
       minStream << parametersAndFlags[i].second.first;
       maxStream << parametersAndFlags[i].second.second;
-      query = query + std::string("WHERE ") + attributes[i] + std::string(">=") +
-              minStream.str() + std::string(" AND ") + attributes[i] + std::string("<=") +
-              maxStream.str();
+      query = query + (flag ? std::string(" AND ") : std::string("WHERE ")) +
+              attributes[i] + std::string(">=") + minStream.str() + std::string(" AND ") +
+              attributes[i] + std::string("<=") + maxStream.str();
+      flag = true;
     }
   }
   query = query + std::string(";");
-  pqxx::result newResult = basicExecuteQuery(C, query, false);
+  pqxx::result newResult = basicExecuteQuery(C, query, true);
   std::cout
       << "PLAYER_ID TEAM_ID UNIFORM_NUM FIRST_NAME LAST_NAME MPG PPG RPG APG SPG BPG\n";
   for (auto r : newResult) {
