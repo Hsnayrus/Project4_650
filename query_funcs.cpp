@@ -107,17 +107,17 @@ void parseColorFile(pqxx::connection * connectionToDatabase) {
   }
 }
 
-void testColorTable(pqxx::connection * connectionToDatabase, std::string tableName) {
+void testColorTable(pqxx::connection * connectionToDatabase,
+                    std::string tableName,
+                    std::ostream & outputStream) {
   std::transform(tableName.begin(), tableName.end(), tableName.begin(), ::toupper);
   std::string basicQuery = std::string("SELECT * FROM ") + tableName + ";";
   pqxx::result newResult = basicExecuteQuery(connectionToDatabase, basicQuery, false);
   displayInterval();
-  std::ofstream outputStream("colorTableAfterParsing.txt");
-  std::cout << "Testing Color table: \n";
   for (auto r : newResult) {
     outputStream << r["COLOR_ID"].as<int>() << " " << r["NAME"].c_str() << std::endl;
   }
-  outputStream.close();
+  //   outputStream.close();
 }
 
 void query1(pqxx::connection * C,
