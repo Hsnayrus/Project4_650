@@ -283,12 +283,15 @@ void query1(pqxx::connection * C,
   std::string query = "SELECT * FROM PLAYER ";
   bool flag = false;
   std::vector<std::pair<int, std::pair<int, int> > > parametersAndFlags;
+  std::vector<std::pair<int, std::pair<double, double> > > spgBpgFlags;
   parametersAndFlags.push_back(std::make_pair(use_mpg, std::make_pair(min_mpg, max_mpg)));
   parametersAndFlags.push_back(std::make_pair(use_ppg, std::make_pair(min_ppg, max_ppg)));
   parametersAndFlags.push_back(std::make_pair(use_rpg, std::make_pair(min_rpg, max_rpg)));
   parametersAndFlags.push_back(std::make_pair(use_apg, std::make_pair(min_apg, max_apg)));
   parametersAndFlags.push_back(std::make_pair(use_spg, std::make_pair(min_spg, max_spg)));
   parametersAndFlags.push_back(std::make_pair(use_bpg, std::make_pair(min_bpg, max_bpg)));
+  spgBpgFlags.push_back(std::make_pair(use_spg, std::make_pair(min_spg, max_spg)));
+  spgBpgFlags.push_back(std::make_pair(use_bpg, std::make_pair(min_bpg, max_bpg)));
   std::vector<std::string> attributes;
   attributes.push_back("MPG");
   attributes.push_back("PPG");
@@ -300,10 +303,19 @@ void query1(pqxx::connection * C,
     if (parametersAndFlags[i].first == 1) {
       std::stringstream minStream;
       std::stringstream maxStream;
-      minStream << std::fixed << std::setprecision(1)
-                << parametersAndFlags[i].second.first;
-      maxStream << std::fixed << std::setprecision(1)
-                << parametersAndFlags[i].second.second;
+      if (i == 4 || i == 5) {
+        minStream << std::fixed << std::setprecision(1)
+                  << spgBpgFlags[i - 4].second.first;
+        maxStream << std::fixed << std::setprecision(1)
+                  << spgBpgFlags[i - 4].second.second;
+      }
+      else {
+        minStream << std::fixed << std::setprecision(1)
+                  << parametersAndFlags[i].second.first;
+        maxStream << std::fixed << std::setprecision(1)
+                  << parametersAndFlags[i].second.second;
+      }
+
       query = query + (flag ? std::string(" AND ") : std::string("WHERE ")) +
               attributes[i] + std::string(">=") + minStream.str() + std::string(" AND ") +
               attributes[i] + std::string("<=") + maxStream.str();
@@ -311,7 +323,7 @@ void query1(pqxx::connection * C,
     }
   }
   query = query + std::string(";");
-  pqxx::result newResult = basicExecuteQuery(C, query, true);
+  pqxx::result newResult = basicExecuteQuery(C, query, false);
   std::cout
       << "PLAYER_ID TEAM_ID UNIFORM_NUM FIRST_NAME LAST_NAME MPG PPG RPG APG SPG BPG\n";
   for (auto r : newResult) {
