@@ -308,7 +308,7 @@ void query1(pqxx::connection * C,
     }
   }
   query = query + std::string(";");
-  pqxx::result newResult = basicExecuteQuery(C, query, true);
+  pqxx::result newResult = basicExecuteQuery(C, query, false);
   std::cout
       << "PLAYER_ID,TEAM_ID,UNIFORM_NUM,FIRST_NAME,LAST_NAME,MPG,PPG,RPG,APG,SPG,BPG\n";
   for (auto r : newResult) {
