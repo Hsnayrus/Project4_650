@@ -38,8 +38,9 @@ int main(int argc, char * argv[]) {
   dropTable(actualConnection, "color", true);
   createTable(actualConnection, "color", colorAttributes);
   parseColorFile(actualConnection);
-  std::ofstream outputStream("colorTableAfterParsing.txt");
-  testColorTable(actualConnection, "color", outputStream);
+  std::string testAllEntriesColor = "SELECT * FROM COLOR;";
+  // std::ofstream outputStream("colorTableAfterParsing.txt");
+  testColorQuery(actualConnection, testAllEntriesColor, std::cout);
 
   // dropTable(actualConnection, "color", true);
 

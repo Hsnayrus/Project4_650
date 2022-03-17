@@ -51,8 +51,9 @@ void add_state(pqxx::connection * C, std::string name);
 void add_color(pqxx::connection * C, std::string name);
 void parseColorFile(pqxx::connection * connectionToDatabase);
 void setColorTableAttributes(std::vector<std::string> & colorAttributes);
-void testColorTable(pqxx::connection * connectionToDatabase,
-                    std::string tableName,
+
+void testColorQuery(pqxx::connection * connectionToDatabase,
+                    std::string query,
                     std::ostream & outputStream);
 
 void query1(pqxx::connection * C,
