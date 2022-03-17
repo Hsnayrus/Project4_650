@@ -34,8 +34,8 @@ void dropTable(pqxx::connection * connectionToDatabase,
   std::transform(tableName.begin(), tableName.end(), tableName.begin(), ::toupper);
   std::string basicQuery =
       "DROP TABLE IF EXISTS " + tableName + (cascade ? " CASCADE;" : ";");
-  pqxx::result newResult = basicExecuteQuery(connectionToDatabase, basicQuery, true);
-  displayInterval();
+  pqxx::result newResult = basicExecuteQuery(connectionToDatabase, basicQuery, false);
+  //   displayInterval();
 }
 
 void createTable(pqxx::connection * connectionToDatabase,
@@ -51,9 +51,9 @@ void createTable(pqxx::connection * connectionToDatabase,
     }
   }
   basicQuery.append(");");
-  pqxx::result newResult = basicExecuteQuery(connectionToDatabase, basicQuery, true);
-  displayInterval();
-  std::cout << tableName << " was successfully created\n";
+  pqxx::result newResult = basicExecuteQuery(connectionToDatabase, basicQuery, false);
+  //   displayInterval();
+  //   std::cout << tableName << " was successfully created\n";
 }
 
 void setPlayerTableFields(std::vector<std::string> & playerAttributes) {
@@ -107,7 +107,7 @@ void testPlayerQuery(pqxx::connection * connectionToDatabase,
                      std::string query,
                      std::ostream & outputStream) {
   pqxx::result newResult = basicExecuteQuery(connectionToDatabase, query, false);
-  displayInterval();
+  //   displayInterval();
   for (auto r : newResult) {
     outputStream << r["PLAYER_ID"].as<int>() << " " << r["TEAM_ID"].as<int>() << " "
                  << r["UNIFORM_NUM"].as<int>() << " " << r["FIRST_NAME"] << " "
@@ -170,7 +170,7 @@ void testTeamQuery(pqxx::connection * connectionToDatabase,
                    std::string query,
                    std::ostream & outputStream) {
   pqxx::result newResult = basicExecuteQuery(connectionToDatabase, query, false);
-  displayInterval();
+  //   displayInterval();
   for (auto r : newResult) {
     outputStream << r["TEAM_ID"].as<int>() << " " << r["NAME"] << " "
                  << r["STATE_ID"].as<int>() << " " << r["COLOR_ID"].as<int>() << " "
@@ -213,7 +213,7 @@ void testStateQuery(pqxx::connection * connectionToDatabase,
                     std::string query,
                     std::ostream & outputStream) {
   pqxx::result newResult = basicExecuteQuery(connectionToDatabase, query, false);
-  displayInterval();
+  //   displayInterval();
   for (auto r : newResult) {
     outputStream << r["STATE_ID"].as<int>() << " " << r["NAME"].c_str() << std::endl;
   }
@@ -254,7 +254,7 @@ void testColorQuery(pqxx::connection * connectionToDatabase,
                     std::string query,
                     std::ostream & outputStream) {
   pqxx::result newResult = basicExecuteQuery(connectionToDatabase, query, false);
-  displayInterval();
+  //   displayInterval();
   for (auto r : newResult) {
     outputStream << r["COLOR_ID"].as<int>() << " " << r["NAME"].c_str() << std::endl;
   }
@@ -280,16 +280,93 @@ void query1(pqxx::connection * C,
             int use_bpg,
             double min_bpg,
             double max_bpg) {
+  std::string query = "SELECT * FROM PLAYER ";
+  std::vector<std::pair<int, std::pair<int, int> > > parametersAndFlags;
+  parametersAndFlags.push_back(std::make_pair(use_mpg, std::make_pair(min_mpg, max_mpg)));
+  parametersAndFlags.push_back(std::make_pair(use_ppg, std::make_pair(min_ppg, max_ppg)));
+  parametersAndFlags.push_back(std::make_pair(use_rpg, std::make_pair(min_rpg, max_rpg)));
+  parametersAndFlags.push_back(std::make_pair(use_apg, std::make_pair(min_apg, max_apg)));
+  parametersAndFlags.push_back(std::make_pair(use_spg, std::make_pair(min_spg, max_spg)));
+  parametersAndFlags.push_back(std::make_pair(use_bpg, std::make_pair(min_bpg, max_bpg)));
+  std::vector<std::string> attributes;
+  attributes.push_back("MPG");
+  attributes.push_back("PPG");
+  attributes.push_back("RPG");
+  attributes.push_back("APG");
+  attributes.push_back("SPG");
+  attributes.push_back("BPG");
+
+  for (size_t i = 0; i < parametersAndFlags.size(); i++) {
+    if (parametersAndFlags[i].first == 1) {
+      std::stringstream minStream;
+      std::stringstream maxStream;
+      minStream << parametersAndFlags[i].second.first;
+      maxStream << parametersAndFlags[i].second.second;
+      query = query + std::string("WHERE ") + attributes[i] + std::string(".WINS>") +
+              minStream.str() + std::string(" AND ") + attributes[i] +
+              std::string(".WINS<=") + maxStream.str();
+    }
+  }
+  query = query + std::string(";");
+  pqxx::result newResult = basicExecuteQuery(C, query, false);
+  std::cout
+      << "PLAYER_ID,TEAM_ID,UNIFORM_NUM,FIRST_NAME,LAST_NAME,MPG,PPG,RPG,APG,SPG,BPG\n";
+  for (auto r : newResult) {
+    std::cout << r["PLAYER_ID"] << " " << r["TEAM_ID"] << " " << r["UNIFORM_NUM"] << " "
+              << r["FIRST_NAME"] << " " << r["LAST_NAME"] << " " << r["MPG"] << " "
+              << r["PPG"] << " " << r["RPG"] << " " << r["APG"] << " " << std::fixed
+              << std::setprecision(1) << r["SPG"] << " " << r["BPG"] << " " << std::endl;
+  }
 }
 
 void query2(pqxx::connection * C, std::string team_color) {
+  std::string query = std::string("SELECT TEAM.NAME FROM TEAM,COLOR WHERE "
+                                  "TEAM.COLOR_ID=COLOR.COLOR_ID AND COLOR.NAME=") +
+                      C->quote(team_color);
+  pqxx::result newResult = basicExecuteQuery(C, query, false);
+  std::cout << "NAME\n";
+  for (auto r : newResult) {
+    std::cout << r["NAME"] << std::endl;
+  }
 }
 
 void query3(pqxx::connection * C, std::string team_name) {
+  std::string query = std::string("SELECT FIRST_NAME,LAST_NAME FROM PLAYER,TEAM WHERE "
+                                  "PLAYER.TEAM_ID=TEAM.TEAM_ID AND TEAM.NAME=") +
+                      C->quote(team_name);
+  pqxx::result newResult = basicExecuteQuery(C, query, false);
+  std::cout << "FIRST_NAME LAST_NAME\n";
+  for (auto r : newResult) {
+    std::cout << r["FIRST_NAME"] << " " << r["LAST_NAME"] << std::endl;
+  }
 }
 
 void query4(pqxx::connection * C, std::string team_state, std::string team_color) {
+  std::string query =
+      std::string("SELECT FIRST_NAME,LAST_NAME,UNIFORM_NUM FROM PLAYER,TEAM,STATE,COLOR "
+                  "WHERE TEAM.STATE_ID=STATE.STATE_ID AND PLAYER.TEAM_ID=TEAM.TEAM_ID "
+                  "AND TEAM.COLOR_ID=COLOR.COLOR_ID AND STATE.NAME=") +
+      C->quote(team_state) + std::string("AND COLOR.NAME=") + C->quote(team_color) +
+      std::string(";");
+  std::cout << "UNIFORM_NUM FIRST_NAME LAST_NAME\n";
+  pqxx::result newResult = basicExecuteQuery(C, query, false);
+  for (auto r : newResult) {
+    std::cout << r["UNIFORM_NUM"] << " " << r["FIRST_NAME"] << " " << r["LAST_NAME"]
+              << std::endl;
+  }
 }
 
 void query5(pqxx::connection * C, int num_wins) {
+  std::stringstream newStream;
+  newStream << num_wins;
+  std::string query =
+      std::string("SELECT FIRST_NAME,LAST_NAME,TEAM.NAME,TEAM.WINS FROM PLAYER,TEAM "
+                  "WHERE PLAYER.TEAM_ID=TEAM.TEAM_ID AND TEAM.WINS>") +
+      newStream.str() + std::string(";");
+  pqxx::result newResult = basicExecuteQuery(C, query, false);
+  std::cout << "FIRST_NAME LAST_NAME NAME WINS\n";
+  for (auto r : newResult) {
+    std::cout << r["FIRST_NAME"] << " " << r["LAST_NAME"] << " " << r["NAME"] << " "
+              << r["WINS"] << " " << std::endl;
+  }
 }

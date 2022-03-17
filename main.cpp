@@ -27,9 +27,6 @@ int main(int argc, char * argv[]) {
 
   //TODO: create PLAYER, TEAM, STATE, and COLOR tables in the ACC_BBALL database
   //      load each table with rows from the provided source txt files
-
-  // exercise(actualConnection);
-
   /*
     Code snippet to initialize the color table with all values
   */
@@ -43,6 +40,9 @@ int main(int argc, char * argv[]) {
   testColorQuery(actualConnection, testAllEntriesColor, outputStream);
   outputStream.close();
 
+  /*
+    Code snippet to initialize the state table with all values
+  */
   std::vector<std::string> stateAttributes;
   setStateTableAttributes(stateAttributes);
   dropTable(actualConnection, "state", true);
@@ -53,6 +53,9 @@ int main(int argc, char * argv[]) {
   testStateQuery(actualConnection, testAllEntriesState, outputStream);
   outputStream.close();
 
+  /*
+    Code snippet to initialize the team table with all values
+  */
   std::vector<std::string> teamAttributes;
   setTeamTableAttributes(teamAttributes);
   dropTable(actualConnection, "team", true);
@@ -63,6 +66,9 @@ int main(int argc, char * argv[]) {
   testTeamQuery(actualConnection, testAllEntriesTest, outputStream);
   outputStream.close();
 
+  /*
+    Code snippet to initialize the player table with all values
+  */
   std::vector<std::string> playerAttributes;
   setPlayerTableFields(playerAttributes);
   dropTable(actualConnection, "player", true);
@@ -72,6 +78,9 @@ int main(int argc, char * argv[]) {
   std::string testAllEntriesPlayer = "SELECT * FROM PLAYER";
   testPlayerQuery(actualConnection, testAllEntriesPlayer, outputStream);
   outputStream.close();
+
+  exercise(actualConnection);
+
   //Close database connection
   actualConnection->disconnect();
 
